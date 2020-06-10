@@ -13,4 +13,21 @@ COPY sudoers.d.redmine /etc/sudoers.d/redmine
 RUN chmod 644 /etc/sudoers.d/redmine && \
     adduser --system --shell /bin/bash --group --disabled-password --home /home/git git
 
-RUN /etc/init.d/ssh start
+# supervisor installation && 
+# create directory for child images to store configuration in
+RUN apt-get -y install supervisor && \
+    mkdir -p /var/log/supervisor && \
+    mkdir -p /etc/supervisor/conf.d && \
+    mkdir -p /var/run/supervisor
+
+# supervisor base configuration
+COPY supervisor.conf /etc/supervisor.conf
+COPY ssh.conf /etc/supervisor/conf.d/ssh.conf
+COPY passenger.conf /etc/supervisor/conf.d/passenger.conf
+
+# sshd setup
+RUN mkdir /run/sshd
+
+# default command
+CMD ["supervisord", "-c", "/etc/supervisor.conf"]
+
