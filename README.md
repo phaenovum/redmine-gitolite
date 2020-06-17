@@ -20,14 +20,14 @@ docker
 
 Create it with:
 
-```
+```bash
 mkdir -p docker/{mysql,redmine/{certs,config,etc_ssh,files,gitolite,plugins,public,ssh}}
 ```
 And place your existing files there.
 
 The `docker-compose.yml`:
 
-```
+```yml
 # Use root/example as user/password credentials
 #version: '3.1'
 version: '2'
@@ -71,13 +71,19 @@ services:
 
 # MySQL Data Migration
 
-```
+```bash
 mysqldump --user=redmine --password redmine > ~/$(date --iso-8601=minutes)_redmine.sql
 docker run --name docker_db_1 -e MYSQL_ROOT_PASSWORD=<password> -v /path/to/docker/mysql:/var/lib/mysql  mariadb:10.4.13
 docker container exec -it docker_db_1 mysql -uroot -p
+```
+
+```mysql
 CREATE USER redmine IDENTIFIED BY 'password';
 CREATE DATABASE redmine; GRANT ALL PRIVILEGES ON redmine.* TO redmine;
 quit;
+```
+
+```bash
 docker exec -i docker_db_1 mysql -uroot -ppassword redmine < $(ls -1c *_pesoftware.pe.loc_dbRedmine.sql | head -n1)
 docker stop docker_db_1
 ```
@@ -88,7 +94,7 @@ If you migrate existing redmine or gitolite files into the docker volumes direct
 
 View the UID and GID of `redmine` and `git` users in the running container:
 
-```
+```bash
 cd docker
 docker-compose up -d
 docker container exec -it docker_redmine_1 bash
@@ -102,7 +108,7 @@ docker-compose down
 
 Change the ownership accordingly:
 
-```
+```bash
 sudo chown 106:107 -R /path/to/docker/redmine/gitolite
 sudo chown 999:999 -R /path/to/docker/redmine/config
 sudo chown 999:999 -R /path/to/docker/redmine/files
@@ -113,7 +119,7 @@ sudo chown 999:999 -R /path/to/docker/redmine/ssh
 
 # Plugins
 
-```
+```bash
 docker container exec -it --user redmine docker_redmine_1 bash
 cd plugins/
 git clone -b v2-stable git://github.com/alphanodes/additionals.git additionals
@@ -127,7 +133,7 @@ RAILS_ENV=production NAME=redmine_git_hosting rake redmine:plugins:migrate
 
 Restart redmine:
 
-```
+```bash
 passenger-config restart-app
 *** Cleaning stale instance directory /tmp/passenger.RqbTnq4
 *** Cleaning stale instance directory /tmp/passenger.HWLlLsW
@@ -147,11 +153,11 @@ Restarting /usr/src/redmine (production)
 Do the [Gitolite setup](https://gitolite.com/gitolite/install#setup) in the
 container. To enter the container as `git` user:
 
-```
+```bash
 docker container exec -it --user git docker_redmine_1 bash
 ```
 
-In Redmine configure Gitolite Plugin according to "Finish installation - Configuration":http://redmine-git-hosting.io/get_started/.
+In Redmine configure Gitolite Plugin according to [Finish installation - Configuration](http://redmine-git-hosting.io/get_started/).
 
 The most important settings:
 
@@ -183,7 +189,7 @@ Execute once:
 
 According to [RedmineReceivingEmails and the cronjob #64](https://github.com/docker-library/redmine/issues/64) the redmine image does not contain a cron service. Instead the cron service of the host can be utilized:
 
-```
+```bash
 docker container exec --user redmine --workdir /usr/source/redmine/active -i docker_redmine_1 rake redmine:send_reminders project=it-infrastruktur RAILS_ENV=production > /dev/null 2>%1
 ```
 
@@ -191,7 +197,7 @@ docker container exec --user redmine --workdir /usr/source/redmine/active -i doc
 
 View the logs with:
 
-```
+```bash
 docker logs -f docker_redmine_1
 ```
 
