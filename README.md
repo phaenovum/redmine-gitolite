@@ -117,6 +117,10 @@ sudo chown 999:999 -R /path/to/docker/redmine/public
 sudo chown 999:999 -R /path/to/docker/redmine/ssh
 ```
 
+# SSH
+
+Gitolite uses SSH. It is necessary to run its SSH server inside the docker container and best practice to let it listen on port 22. For this to work make shure your host's SSH server uses another port.
+
 # Plugins
 
 ```bash
