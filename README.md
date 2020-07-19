@@ -86,6 +86,15 @@ quit;
 ```bash
 docker exec -i docker_db_1 mysql -uroot -ppassword redmine < $(ls -1c ~/*_redmine.sql | head -n1)
 docker stop docker_db_1
+docker rm docker_db_1
+```
+# Create redmine-gitolite Image
+
+```bash
+git clone git@github.com:phaenovum/redmine-gitolite.git
+cd redmine-gitolite/
+docker image build --tag redmine-gitolite:4.1.1-passenger .
+cd ..
 ```
 
 # Fixing File Ownerships
