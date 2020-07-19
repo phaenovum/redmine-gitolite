@@ -84,7 +84,7 @@ quit;
 ```
 
 ```bash
-docker exec -i docker_db_1 mysql -uroot -ppassword redmine < $(ls -1c *_pesoftware.pe.loc_dbRedmine.sql | head -n1)
+docker exec -i docker_db_1 mysql -uroot -ppassword redmine < $(ls -1c ~/*_redmine.sql | head -n1)
 docker stop docker_db_1
 ```
 
