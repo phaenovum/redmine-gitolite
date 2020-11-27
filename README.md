@@ -203,7 +203,7 @@ Execute once:
 According to [RedmineReceivingEmails and the cronjob #64](https://github.com/docker-library/redmine/issues/64) the redmine image does not contain a cron service. Instead the cron service of the host can be utilized:
 
 ```bash
-docker container exec --user redmine --workdir /usr/source/redmine/active -i docker_redmine_1 rake redmine:send_reminders project=it-infrastruktur RAILS_ENV=production > /dev/null 2>%1
+docker container exec --user redmine --workdir /usr/src/redmine -i docker_redmine_1 rake redmine:send_reminders project=it-infrastruktur RAILS_ENV=production > /dev/null 2>&1
 ```
 
 # Logs
