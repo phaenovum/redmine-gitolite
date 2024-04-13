@@ -69,13 +69,32 @@ services:
       MYSQL_ROOT_PASSWORD: <secret>
 ```
 
-# MySQL Data Migration
+# Data Migration
+
+In case you want to migrate the data of an existing Redmine instance into
+the docker containers, this is how I did it.
+
+## MySQL Data Migration
+
+Create a dump of the existing database:
 
 ```bash
 mysqldump --user=redmine --password redmine > ~/$(date --iso-8601=minutes)_redmine.sql
+```
+
+Start the database container:
+
+```bash
 docker run --name docker_db_1 -e MYSQL_ROOT_PASSWORD=<password> -v /path/to/docker/mysql:/var/lib/mysql  mariadb:10.4.13
+```
+
+Log into the container's  mysql database:
+
+```bash
 docker container exec -it docker_db_1 mysql -uroot -p
 ```
+
+Creat empty redmine database:
 
 ```mysql
 CREATE USER redmine IDENTIFIED BY 'password';
@@ -83,21 +102,21 @@ CREATE DATABASE redmine; GRANT ALL PRIVILEGES ON redmine.* TO redmine;
 quit;
 ```
 
+Import database dump created above:
+
+
 ```bash
 docker exec -i docker_db_1 mysql -uroot -ppassword redmine < $(ls -1c ~/*_redmine.sql | head -n1)
+```
+
+Stop container and clean-up:
+
+```bash
 docker stop docker_db_1
 docker rm docker_db_1
 ```
-# Create redmine-gitolite Image
 
-```bash
-git clone git@github.com:phaenovum/redmine-gitolite.git
-cd redmine-gitolite/
-docker image build --tag redmine-gitolite:4.1.1-passenger .
-cd ..
-```
-
-# Fixing File Ownerships
+## Files
 
 If you migrate existing redmine or gitolite files into the docker volumes directories you have to fix their ownership.
 
@@ -124,6 +143,16 @@ sudo chown 999:999 -R /path/to/docker/redmine/files
 sudo chown 999:999 -R /path/to/docker/redmine/plugins
 sudo chown 999:999 -R /path/to/docker/redmine/public
 sudo chown 999:999 -R /path/to/docker/redmine/ssh
+```
+
+
+# Create redmine-gitolite Image
+
+```bash
+git clone git@github.com:phaenovum/redmine-gitolite.git
+cd redmine-gitolite/
+docker image build --tag redmine-gitolite:4.1.1-passenger .
+cd ..
 ```
 
 # SSH
